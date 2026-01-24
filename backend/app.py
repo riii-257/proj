@@ -9,13 +9,13 @@ import re
 from collections import defaultdict
 import tempfile
 
-# PDF and Image Processing
+# processing
 import pdf2image
 from PIL import Image
 import cv2
 import numpy as np
 
-# OCR - Tesseract Only
+# ocr
 try:
     import pytesseract
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -24,11 +24,11 @@ except Exception as e:
     TESSERACT_AVAILABLE = False
     logging.warning(f"Tesseract not available: {str(e)}")
 
-# NLP - SpaCy disabled
+# nlp
 SPACY_AVAILABLE = False
 NLP = None
 
-# Database
+# db
 try:
     from pymongo import MongoClient
     MONGO_CLIENT = MongoClient('mongodb://localhost:27017/')
@@ -59,11 +59,11 @@ try:
 except Exception as e:
     PG_AVAILABLE = False
 
-# Initialize Flask app
+# flask
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
+# config
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png', 'tiff', 'tif'}
 MAX_FILE_SIZE = 50 * 1024 * 1024
@@ -72,11 +72,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-# Logging
+# log
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ====== DATABASE FUNCTIONS ======
+#db functions
 
 def init_databases():
     """Initialize all databases"""
@@ -131,7 +131,7 @@ def init_databases():
         except Exception as e:
             logger.warning(f"PostgreSQL table creation error: {str(e)}")
 
-# ====== IMAGE PROCESSING ======
+# img
 
 def preprocess_image_cv2(image_path):
     """Preprocess image using OpenCV"""
@@ -153,7 +153,7 @@ def preprocess_image_cv2(image_path):
         logger.error(f"Image preprocessing error: {str(e)}")
         return image_path
 
-# ====== OCR FUNCTIONS ======
+# ocr functions
 
 def extract_text_tesseract(image_path):
     """Extract text using Tesseract"""
@@ -211,7 +211,7 @@ def extract_text_from_image(image_path):
         logger.error(f"Image extraction error: {str(e)}")
         return f"Error: {str(e)}", 1
 
-# ====== KEYWORD EXTRACTION ======
+# keyword extract
 
 def extract_entities_and_keywords(text):
     """Extract keywords from text"""
@@ -233,7 +233,7 @@ def extract_entities_and_keywords(text):
         logger.error(f"Keyword extraction error: {str(e)}")
         return [], []
 
-# ====== DATABASE STORAGE ======
+# db storage
 
 def store_document(doc_data):
     doc_id = None
@@ -289,7 +289,7 @@ def store_document(doc_data):
     
     return doc_id
 
-# ====== API ENDPOINTS ======
+# api
 
 @app.route('/api/health', methods=['GET'])
 def health():
@@ -360,7 +360,7 @@ def upload_document():
         logger.error(f"Upload error: {str(e)}")
         return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
-# ====== RUN APP ======
+# run
 
 if __name__ == '__main__':
     init_databases()
